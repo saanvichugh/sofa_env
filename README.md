@@ -1,4 +1,15 @@
 # SOFA_ENV
+
+## My Contributions
+
+This fork extends the original `sofa_env` Reach environment with a **static obstacle sphere** for obstacle-avoidance research in surgical robotics RL. All changes are additive — the base environment's default behavior (all reward weights at 0.0) is unchanged unless explicitly configured.
+
+## What Was Added
+
+**Static obstacle sphere**, integrated as a first-class part of the Reach task: the agent's end effector must reach a target while avoiding a fixed spherical obstacle, with collision detection and a configurable penalty wired into the reward function.
+- The obstacle's position is **not included in the observation space** in this static version — the agent must learn to avoid it purely through the reward signal, not by directly observing its location. (A dynamic version, with randomized obstacle placement and position included in the observation vector, is a planned extension.)
+  
+# About the Original Project
 Gym environments for reinforcement learning based on the [SOFA Simulation Framework](https://www.sofa-framework.org/).
 This repository is part of "LapGym - An Open Source Framework for Reinforcement Learning in Robot-Assisted Laparoscopic Surgery".
 See [LapGym](https://www.jmlr.org/papers/v24/23-0207.html) for the paper and [lap_gym](https://github.com/ScheiklP/lap_gym) for the top level repository.
