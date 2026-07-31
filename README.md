@@ -2,11 +2,11 @@
 
 ## My Contributions
 
-This fork extends the original `sofa_env` Reach environment with a **static obstacle sphere** for obstacle-avoidance research in surgical robotics RL. All changes are additive — the base environment's default behavior (all reward weights at 0.0) is unchanged unless explicitly configured.
+This fork extends the original `sofa_env` Reach environment with a **static obstacle sphere** for obstacle-avoidance research in surgical robotics RL. All changes are additive — the base environment's default behavior is unchanged unless explicitly configured.
 
 ## What Was Added
 
-**Static obstacle sphere**, integrated as a first-class part of the Reach task: the agent's end effector must reach a target while avoiding a fixed spherical obstacle, with collision detection and a configurable penalty wired into the reward function.
+**Static obstacle sphere**: the agent's end effector must reach a target while avoiding a fixed spherical obstacle, with collision detection and a configurable penalty wired into the reward function.
 - The obstacle's position is **not included in the observation space** in this static version — the agent must learn to avoid it purely through the reward signal, not by directly observing its location. (A dynamic version, with randomized obstacle placement and position included in the observation vector, is a planned extension.)
   
 # About the Original Project
