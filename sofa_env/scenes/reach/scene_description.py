@@ -41,6 +41,7 @@ def createScene(
     camera_field_of_view_vertical: int = 42,
     camera_placement_kwargs: Optional[dict] = None,
     sphere_radius: float = 0.008,
+    obstacle_sphere_radius: float = 0.016,
 ) -> Dict:
     """
     Creates the scene of the ReachEnv.
@@ -178,6 +179,22 @@ def createScene(
     ###############
     # Visual Target
     ###############
+
+    # Obstacle Sphere
+    obstacle_color = (255, 0, 0)
+    obstacle_visual_func = partial(add_visual_model, color=obstacle_color)
+    obstacle_sphere = ControllableRigidObject(
+        parent_node=scene_node,
+        name="obstacle_sphere",
+        pose=np.array([0.0, 0.05, 0.0] + [0.0, 0.0, 0.0, 1.0]),  # center of workspace
+        visual_mesh_path=sphere_surface_mesh_path,
+        scale=obstacle_sphere_radius, 
+        add_visual_model_func=obstacle_visual_func,
+        show_object=False,
+        show_object_scale=0.01,
+    )
+    
+    # Goal sphere the robot is trying to reach
     visual_target_visual_func = partial(add_visual_model, color=visual_target_color)
     visual_target = ControllableRigidObject(
         parent_node=scene_node,
@@ -218,6 +235,7 @@ def createScene(
         "interactive_objects": {
             "end_effector": end_effector,
             "visual_target": visual_target,
+            "obstacle_sphere": obstacle_sphere,
         },
         "workspace": workspace,
     }
