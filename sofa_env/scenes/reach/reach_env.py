@@ -78,18 +78,22 @@ class ReachEnv(SofaEnv):
             "time_step_cost": -0.0,
             "workspace_violation": -0.0,
             "successful_task": 0.0,
+            "obstacle_collision": 0.0,
         },
         create_scene_kwargs: Optional[dict] = None,
         on_reset_callbacks: Optional[List[Callable]] = None,
         sphere_radius: float = 0.008,
+        obstacle_sphere_radius: float = 0.016,
     ) -> None:
         # Pass image shape to the scene creation function
         if not isinstance(create_scene_kwargs, dict):
             create_scene_kwargs = {}
         create_scene_kwargs["image_shape"] = image_shape
         create_scene_kwargs["sphere_radius"] = sphere_radius
+        create_scene_kwargs["obstacle_sphere_radius"] = obstacle_sphere_radius
 
         self.sphere_radius = sphere_radius
+        self.obstacle_sphere_radius = obstacle_sphere_radius
 
         super().__init__(
             scene_path=scene_path,
@@ -217,6 +221,7 @@ class ReachEnv(SofaEnv):
         self._workspace: dict = self.scene_creation_result["workspace"]
         self.end_effector: EndEffector = self.scene_creation_result["interactive_objects"]["end_effector"]
         self._visual_target: ControllableRigidObject = self.scene_creation_result["interactive_objects"]["visual_target"]
+        self.obstacle_sphere: ControllableRigidObject = self.scene_creation_result["interactive_objects"]["obstacle_sphere"]
 
         # Scale the all distance values to an interval of [0, 1] based on the end effector workspace
         self._distance_normalization_factor = 1.0 / np.linalg.norm(self._workspace["high"][:3] - self._workspace["low"][:3])
@@ -276,6 +281,10 @@ class ReachEnv(SofaEnv):
         reward_features = {}
         current_position = self.end_effector.get_pose()[:3]
         target_position = self._visual_target.get_pose()[:3]
+        obstacle_position = self.obstacle_sphere.get_pose()[:3]
+
+        # compute distance from ee to obstacle
+        distance_to_obstacle = np.linalg.norm(current_position - obstacle_position)
 
         reward_features["distance_to_target"] = np.linalg.norm(current_position - target_position)
         reward_features["delta_distance_to_target"] = reward_features["distance_to_target"] - previous_reward_features["distance_to_target"]
@@ -286,6 +295,8 @@ class ReachEnv(SofaEnv):
 
         reward_features["successful_task"] = float(reward_features["distance_to_target"] <= self._distance_to_target_threshold)
 
+        reward_features["obstacle_collision"] = float(distance_to_obstacle < self.obstacle_sphere_radius)
+        
         return reward_features
 
     def _get_reward(self) -> float:
@@ -430,6 +441,7 @@ if __name__ == "__main__":
             "time_step_cost": -1.0,
             "workspace_violation": -1.0,
             "successful_task": 1.0,
+            "obstacle_collision": -10.0, # large negative penalty for hitting obstacle
         },
     )
 
